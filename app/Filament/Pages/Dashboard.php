@@ -23,7 +23,7 @@ class Dashboard extends BaseDashboard
             TransactionTypeChart::class,
         ];
     }
-    
+
     // منع ظهور الـ widgets المكتشفة تلقائياً - نريد فقط الـ widgets المحددة في getHeaderWidgets()
     public function getWidgets(): array
     {

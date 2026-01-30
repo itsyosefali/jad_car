@@ -9,6 +9,7 @@ class Inspection extends Model
 {
     protected $fillable = [
         'transaction_id',
+        'رقم_الوثيقة',
         'نوع_الإجراء',
         'النتيجة',
         'ملاحظات',
@@ -20,7 +21,7 @@ class Inspection extends Model
 
         static::creating(function ($inspection) {
             $transaction = $inspection->transaction;
-            if ($transaction && !in_array($transaction->نوع_المعاملة, ['فحص', 'تجديد'])) {
+            if ($transaction && ! in_array($transaction->نوع_المعاملة, ['فحص', 'تجديد'])) {
                 throw new \Exception('لا يمكن إنشاء فحص إلا لمعاملات من نوع "فحص" أو "تجديد".');
             }
         });

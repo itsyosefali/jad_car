@@ -12,7 +12,7 @@ class TransactionStateService
     public function canChangeStatus(Transaction $transaction, string $newStatus): bool
     {
         $currentStatus = $transaction->الحالة;
-        
+
         // حالات صالحة
         $validTransitions = [
             'مسودة' => ['مكتملة', 'ملغاة'],
@@ -28,7 +28,7 @@ class TransactionStateService
      */
     public function changeStatus(Transaction $transaction, string $newStatus): bool
     {
-        if (!$this->canChangeStatus($transaction, $newStatus)) {
+        if (! $this->canChangeStatus($transaction, $newStatus)) {
             throw new \Exception("لا يمكن تغيير الحالة من '{$transaction->الحالة}' إلى '{$newStatus}'.");
         }
 
@@ -45,7 +45,7 @@ class TransactionStateService
     public function getAvailableStatuses(Transaction $transaction): array
     {
         $currentStatus = $transaction->الحالة;
-        
+
         $availableStatuses = [
             'مسودة' => ['مكتملة', 'ملغاة'],
             'مكتملة' => [],

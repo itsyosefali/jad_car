@@ -99,6 +99,31 @@
             font-weight: bold;
             color: #C40000;
         }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .items-table th,
+        .items-table td {
+            padding: 4px 6px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+            font-size: 9px;
+        }
+        .items-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+        .items-table td {
+            color: #666;
+        }
+        .items-total {
+            font-weight: bold;
+            color: #C40000;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -122,10 +147,17 @@
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('الحالة:') : 'الحالة:' }}</div>
             <div class="info-value">{{ isset($Arabic) ? $Arabic->utf8Glyphs($transaction->الحالة) : $transaction->الحالة }}</div>
         </div>
+        @if($transaction->items && $transaction->items->count() > 0)
+        <div class="info-row">
+            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('السعر الإجمالي:') : 'السعر الإجمالي:' }}</div>
+            <div class="info-value items-total">{{ number_format($transaction->السعر, 2) }} {{ isset($Arabic) ? $Arabic->utf8Glyphs('دينار ليبي') : 'دينار ليبي' }}</div>
+        </div>
+        @else
         <div class="info-row">
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('السعر:') : 'السعر:' }}</div>
             <div class="info-value">{{ number_format($transaction->السعر, 2) }} {{ isset($Arabic) ? $Arabic->utf8Glyphs('دينار ليبي') : 'دينار ليبي' }}</div>
         </div>
+        @endif
         <div class="info-row">
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('تاريخ المعاملة:') : 'تاريخ المعاملة:' }}</div>
             <div class="info-value">{{ $transaction->تاريخ_المعاملة->format('Y-m-d') }}</div>
@@ -156,13 +188,54 @@
         @endif
     </div>
 
+    @if($transaction->items && $transaction->items->count() > 0)
+    <div class="info-section">
+        <div class="section-title">{{ isset($Arabic) ? $Arabic->utf8Glyphs('تفاصيل المعاملة') : 'تفاصيل المعاملة' }}</div>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>{{ isset($Arabic) ? $Arabic->utf8Glyphs('اسم الخدمة') : 'اسم الخدمة' }}</th>
+                    <th>{{ isset($Arabic) ? $Arabic->utf8Glyphs('التكلفة') : 'التكلفة' }}</th>
+                    <th>{{ isset($Arabic) ? $Arabic->utf8Glyphs('الكمية') : 'الكمية' }}</th>
+                    <th>{{ isset($Arabic) ? $Arabic->utf8Glyphs('الإجمالي') : 'الإجمالي' }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($transaction->items as $item)
+                <tr>
+                    <td>{{ isset($Arabic) ? $Arabic->utf8Glyphs($item->service_name) : $item->service_name }}</td>
+                    <td>{{ number_format($item->selling_price, 2) }} LYD</td>
+                    <td>{{ $item->الكمية }}</td>
+                    <td>{{ number_format($item->total, 2) }} LYD</td>
+                </tr>
+                @if($item->الملاحظات)
+                <tr>
+                    <td colspan="4" style="font-size: 8px; color: #999; padding-right: 20px;">
+                        {{ isset($Arabic) ? $Arabic->utf8Glyphs('ملاحظات: ' . $item->الملاحظات) : 'ملاحظات: ' . $item->الملاحظات }}
+                    </td>
+                </tr>
+                @endif
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr class="items-total">
+                    <td colspan="3" style="text-align: left; padding-right: 10px;">{{ isset($Arabic) ? $Arabic->utf8Glyphs('المجموع الكلي:') : 'المجموع الكلي:' }}</td>
+                    <td>{{ number_format($transaction->السعر, 2) }} LYD</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    @endif
+
     @if($transaction->vehicle)
     <div class="info-section">
         <div class="section-title">{{ isset($Arabic) ? $Arabic->utf8Glyphs('معلومات المركبة') : 'معلومات المركبة' }}</div>
+        @if($transaction->vehicle->رقم_اللوحة)
         <div class="info-row">
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('رقم اللوحة:') : 'رقم اللوحة:' }}</div>
             <div class="info-value">{{ isset($Arabic) ? $Arabic->utf8Glyphs($transaction->vehicle->رقم_اللوحة) : $transaction->vehicle->رقم_اللوحة }}</div>
         </div>
+        @endif
         @if($transaction->vehicle->نوع_المركبة)
         <div class="info-row">
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('نوع المركبة:') : 'نوع المركبة:' }}</div>
@@ -184,27 +257,31 @@
     </div>
     @endif
 
-    @if($transaction->payment)
+    @if($transaction->payments && $transaction->payments->count() > 0)
     <div class="info-section">
         <div class="section-title">{{ isset($Arabic) ? $Arabic->utf8Glyphs('معلومات الدفع') : 'معلومات الدفع' }}</div>
         <div class="info-row">
-            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('المبلغ المدفوع:') : 'المبلغ المدفوع:' }}</div>
-            <div class="info-value">{{ number_format($transaction->payment->المبلغ, 2) }} {{ isset($Arabic) ? $Arabic->utf8Glyphs('دينار ليبي') : 'دينار ليبي' }}</div>
+            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('إجمالي المبلغ المدفوع:') : 'إجمالي المبلغ المدفوع:' }}</div>
+            <div class="info-value">{{ number_format($transaction->total_paid, 2) }} {{ isset($Arabic) ? $Arabic->utf8Glyphs('دينار ليبي') : 'دينار ليبي' }}</div>
         </div>
+        @if($transaction->remaining_amount > 0)
         <div class="info-row">
-            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('طريقة الدفع:') : 'طريقة الدفع:' }}</div>
-            <div class="info-value">{{ isset($Arabic) ? $Arabic->utf8Glyphs($transaction->payment->طريقة_الدفع) : $transaction->payment->طريقة_الدفع }}</div>
-        </div>
-        @if($transaction->payment->رقم_الإيصال)
-        <div class="info-row">
-            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('رقم الإيصال:') : 'رقم الإيصال:' }}</div>
-            <div class="info-value">{{ isset($Arabic) ? $Arabic->utf8Glyphs($transaction->payment->رقم_الإيصال) : $transaction->payment->رقم_الإيصال }}</div>
+            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('المبلغ المتبقي:') : 'المبلغ المتبقي:' }}</div>
+            <div class="info-value">{{ number_format($transaction->remaining_amount, 2) }} {{ isset($Arabic) ? $Arabic->utf8Glyphs('دينار ليبي') : 'دينار ليبي' }}</div>
         </div>
         @endif
+        @if($transaction->payments->count() > 1)
         <div class="info-row">
-            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('تاريخ الدفع:') : 'تاريخ الدفع:' }}</div>
-            <div class="info-value">{{ $transaction->payment->تاريخ_الدفع->format('Y-m-d') }}</div>
+            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('عدد الدفعات:') : 'عدد الدفعات:' }}</div>
+            <div class="info-value">{{ $transaction->payments->count() }} {{ isset($Arabic) ? $Arabic->utf8Glyphs('دفعة') : 'دفعة' }}</div>
         </div>
+        @endif
+        @foreach($transaction->payments as $payment)
+        <div class="info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
+            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('دفعة #') : 'دفعة #' }}{{ $loop->iteration }}:</div>
+            <div class="info-value">{{ number_format($payment->المبلغ, 2) }} LYD - {{ isset($Arabic) ? $Arabic->utf8Glyphs($payment->طريقة_الدفع) : $payment->طريقة_الدفع }} ({{ $payment->تاريخ_الدفع->format('Y-m-d') }})</div>
+        </div>
+        @endforeach
     </div>
     @endif
 
@@ -219,6 +296,12 @@
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('النتيجة:') : 'النتيجة:' }}</div>
             <div class="info-value">{{ isset($Arabic) ? $Arabic->utf8Glyphs($transaction->inspection->النتيجة) : $transaction->inspection->النتيجة }}</div>
         </div>
+        @if($transaction->inspection->رقم_الوثيقة)
+        <div class="info-row">
+            <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('رقم الوثيقة:') : 'رقم الوثيقة:' }}</div>
+            <div class="info-value">{{ isset($Arabic) ? $Arabic->utf8Glyphs($transaction->inspection->رقم_الوثيقة) : $transaction->inspection->رقم_الوثيقة }}</div>
+        </div>
+        @endif
         @if($transaction->inspection->ملاحظات)
         <div class="info-row">
             <div class="info-label">{{ isset($Arabic) ? $Arabic->utf8Glyphs('ملاحظات:') : 'ملاحظات:' }}</div>

@@ -33,9 +33,13 @@ class VehicleResource extends Resource
             ->schema([
                 Forms\Components\Section::make('معلومات المركبة')
                     ->schema([
+                        Forms\Components\TextInput::make('رقم_الهيكل')
+                            ->label('رقم الهيكل')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('رقم_اللوحة')
                             ->label('رقم اللوحة')
-                            ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('نوع_المركبة')
                             ->label('نوع المركبة (العلامة التجارية)')
@@ -50,9 +54,6 @@ class VehicleResource extends Resource
                                 'دراجة' => 'دراجة',
                                 'آلية' => 'آلية',
                             ]),
-                        Forms\Components\TextInput::make('رقم_الهيكل')
-                            ->label('رقم الهيكل')
-                            ->maxLength(255),
                         Forms\Components\TextInput::make('اللون')
                             ->label('اللون')
                             ->maxLength(255),
@@ -72,6 +73,10 @@ class VehicleResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('رقم_الهيكل')
+                    ->label('رقم الهيكل')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('رقم_اللوحة')
                     ->label('رقم اللوحة')
                     ->searchable()
@@ -84,10 +89,6 @@ class VehicleResource extends Resource
                     ->label('الصنف')
                     ->searchable()
                     ->badge(),
-                Tables\Columns\TextColumn::make('رقم_الهيكل')
-                    ->label('رقم الهيكل')
-                    ->searchable()
-                    ->toggleable(),
                 Tables\Columns\TextColumn::make('اللون')
                     ->label('اللون')
                     ->searchable()

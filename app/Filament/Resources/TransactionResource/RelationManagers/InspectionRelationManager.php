@@ -7,8 +7,6 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class InspectionRelationManager extends RelationManager
 {
@@ -26,6 +24,9 @@ class InspectionRelationManager extends RelationManager
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('رقم_الوثيقة')
+                    ->label('رقم الوثيقة')
+                    ->maxLength(255),
                 Forms\Components\Select::make('نوع_الإجراء')
                     ->label('نوع الإجراء')
                     ->required()
@@ -53,6 +54,10 @@ class InspectionRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('نوع_الإجراء')
             ->columns([
+                Tables\Columns\TextColumn::make('رقم_الوثيقة')
+                    ->label('رقم الوثيقة')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('نوع_الإجراء')
                     ->label('نوع الإجراء')
                     ->badge(),
@@ -81,6 +86,7 @@ class InspectionRelationManager extends RelationManager
                     ->visible(fn () => in_array($this->getOwnerRecord()->نوع_المعاملة, ['فحص', 'تجديد']))
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['transaction_id'] = $this->getOwnerRecord()->id;
+
                         return $data;
                     }),
             ])
@@ -93,6 +99,7 @@ class InspectionRelationManager extends RelationManager
                     ->visible(fn () => in_array($this->getOwnerRecord()->نوع_المعاملة, ['فحص', 'تجديد']))
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['transaction_id'] = $this->getOwnerRecord()->id;
+
                         return $data;
                     }),
             ])

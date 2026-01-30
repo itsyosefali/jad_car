@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('ملاحظات')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->unique(['رقم_اللوحة', 'الصنف']);
         });
     }

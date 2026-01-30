@@ -2,13 +2,9 @@
 
 namespace App\Filament\Resources\ClientResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TransactionsRelationManager extends RelationManager
 {
@@ -40,7 +36,7 @@ class TransactionsRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('السعر')
                     ->label('السعر')
-                    ->formatStateUsing(fn ($state) => number_format($state, 2) . ' LYD')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2).' LYD')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('تاريخ_المعاملة')
                     ->label('تاريخ المعاملة')

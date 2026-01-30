@@ -12,7 +12,7 @@ class TransactionService
      */
     public function completeTransaction(Transaction $transaction): bool
     {
-        if (!$transaction->isDraft()) {
+        if (! $transaction->isDraft()) {
             throw new \Exception('لا يمكن إكمال معاملة غير مسودة.');
         }
 
@@ -38,7 +38,7 @@ class TransactionService
      */
     public function canDelete(Transaction $transaction): bool
     {
-        return !$transaction->isCompleted();
+        return ! $transaction->isCompleted();
     }
 
     /**
@@ -46,6 +46,6 @@ class TransactionService
      */
     public function canModifyPrice(Transaction $transaction): bool
     {
-        return !$transaction->isCompleted();
+        return ! $transaction->isCompleted();
     }
 }

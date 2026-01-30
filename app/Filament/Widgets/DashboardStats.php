@@ -13,7 +13,7 @@ class DashboardStats extends BaseWidget
     {
         $today = now()->startOfDay();
         $monthStart = now()->startOfMonth();
-        
+
         // إحصائيات اليوم - استخدام whereDate مع string لتجنب التكرار
         $todayTotal = Transaction::whereDate('تاريخ_المعاملة', $today->toDateString())
             ->count();
@@ -26,7 +26,7 @@ class DashboardStats extends BaseWidget
         $todayRevenue = Transaction::whereDate('تاريخ_المعاملة', $today->toDateString())
             ->where('الحالة', 'مكتملة')
             ->sum('السعر');
-        
+
         // إحصائيات الشهر - استخدام whereBetween لتجنب التكرار
         $monthEnd = now()->endOfMonth();
         $monthRevenue = Transaction::whereBetween('تاريخ_المعاملة', [$monthStart->toDateString(), $monthEnd->toDateString()])
@@ -46,11 +46,11 @@ class DashboardStats extends BaseWidget
                 ->description('معاملات مسودة اليوم')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
-            Stat::make('إيرادات اليوم', Number::format($todayRevenue, 2) . ' LYD')
+            Stat::make('إيرادات اليوم', Number::format($todayRevenue, 2).' LYD')
                 ->description('إجمالي الإيرادات اليوم')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
-            Stat::make('إيرادات الشهر', Number::format($monthRevenue, 2) . ' LYD')
+            Stat::make('إيرادات الشهر', Number::format($monthRevenue, 2).' LYD')
                 ->description('إجمالي الإيرادات الشهرية')
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('info'),

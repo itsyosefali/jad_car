@@ -3,14 +3,30 @@
 namespace App\Filament\Resources\TransactionResource\Pages;
 
 use App\Filament\Resources\TransactionResource;
+use ArPHP\I18N\Arabic;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use ArPHP\I18N\Arabic;
 
 class EditTransaction extends EditRecord
 {
     protected static string $resource = TransactionResource::class;
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Load items for the repeater with service data
+        $data['items'] = $this->record->items->map(function ($item) {
+            return [
+                'service_id' => $item->service_id,
+                'اسم_الخدمة' => $item->service_name,
+                'التكلفة' => $item->cost,
+                'الكمية' => $item->الكمية,
+                'الملاحظات' => $item->الملاحظات,
+            ];
+        })->toArray();
+
+        return $data;
+    }
 
     protected function getHeaderActions(): array
     {
@@ -21,17 +37,17 @@ class EditTransaction extends EditRecord
                 ->color('danger')
                 ->visible(fn () => $this->record->isCompleted())
                 ->action(function () {
-                    $transaction = $this->record->load(['client', 'vehicle', 'payment', 'inspection']);
-                    
+                    $transaction = $this->record->load(['client', 'vehicle', 'payments', 'inspection', 'items.service']);
+
                     // استخدام ar-php لتحسين عرض النصوص العربية
-                    $Arabic = new Arabic();
-                    
+                    $Arabic = new Arabic;
+
                     // تحويل النصوص العربية إلى صيغة صحيحة
                     $viewData = [
                         'transaction' => $transaction,
                         'Arabic' => $Arabic,
                     ];
-                    
+
                     $pdf = Pdf::loadView('receipts.transaction-receipt', $viewData)
                         ->setPaper('a4', 'portrait')
                         ->setOption('isHtml5ParserEnabled', true)
@@ -39,7 +55,7 @@ class EditTransaction extends EditRecord
 
                     return response()->streamDownload(function () use ($pdf) {
                         echo $pdf->stream();
-                    }, 'receipt-' . $transaction->الرقم_المرجعي . '.pdf');
+                    }, 'receipt-'.$transaction->الرقم_المرجعي.'.pdf');
                 }),
             Actions\DeleteAction::make()
                 ->disabled(fn () => $this->record->isCompleted()),
@@ -52,12 +68,34 @@ class EditTransaction extends EditRecord
         if (isset($data['الرقم_المرجعي'])) {
             $data['الرقم_المرجعي'] = $this->record->الرقم_المرجعي;
         }
-        
+
+        // Calculate total from items if items exist (using selling prices from services)
+        if (isset($data['items']) && is_array($data['items'])) {
+            $total = 0;
+            foreach ($data['items'] as $item) {
+                if (isset($item['service_id']) && isset($item['الكمية'])) {
+                    $service = \App\Models\Service::find($item['service_id']);
+                    if ($service) {
+                        $total += ($service->سعر_البيع * $item['الكمية']);
+                    }
+                }
+            }
+            $data['السعر'] = $total;
+        }
+
         // لا يمكن تعديل السعر إذا كانت المعاملة مكتملة
         if ($this->record->isCompleted() && isset($data['السعر'])) {
             $data['السعر'] = $this->record->السعر;
         }
 
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        // Recalculate total from items after save
+        if (! $this->record->isCompleted()) {
+            $this->record->recalculateTotal();
+        }
     }
 }

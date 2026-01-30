@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\Transaction;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Carbon;
 
 class TransactionTypeChart extends ChartWidget
 {
@@ -15,7 +14,7 @@ class TransactionTypeChart extends ChartWidget
     protected function getData(): array
     {
         $today = now()->startOfDay();
-        
+
         $data = Transaction::whereDate('تاريخ_المعاملة', $today)
             ->where('الحالة', 'مكتملة')
             ->selectRaw('نوع_المعاملة, COUNT(*) as count')
@@ -24,7 +23,7 @@ class TransactionTypeChart extends ChartWidget
 
         $labels = ['تسجيل', 'تأمين', 'تجديد', 'فحص'];
         $values = [];
-        
+
         foreach ($labels as $type) {
             $values[] = $data->firstWhere('نوع_المعاملة', $type)?->count ?? 0;
         }
