@@ -25,7 +25,9 @@ class VehicleResource extends Resource
 
     protected static ?string $pluralModelLabel = 'السيارات';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'الأساسيات';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

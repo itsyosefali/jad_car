@@ -27,7 +27,9 @@ class TransactionResource extends Resource
 
     protected static ?string $pluralModelLabel = 'المعاملات';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationGroup = 'المعاملات';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -135,6 +137,12 @@ class TransactionResource extends Resource
                                 'فحص' => 'فحص',
                             ])
                             ->placeholder('اختياري - سيتم تحديده من الخدمات المختارة'),
+                        Forms\Components\TextInput::make('inspection_رقم_الوثيقة')
+                            ->label('رقم الوثيقة')
+                            ->maxLength(255)
+                            ->dehydrated(true)
+                            ->default(fn ($record) => $record?->inspection?->رقم_الوثيقة)
+                            ->helperText('رقم الوثيقة من الفحص'),
                         Forms\Components\TextInput::make('السعر')
                             ->label('السعر الإجمالي')
                             ->required(fn ($record) => ! $record || $record->items()->count() === 0)
@@ -429,6 +437,13 @@ class TransactionResource extends Resource
                         'ملغاة' => 'danger',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('inspection.رقم_الوثيقة')
+                    ->label('رقم الوثيقة')
+                    ->searchable()
+                    ->sortable()
+                    ->default('—')
+                    ->icon('heroicon-o-document-text')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('السعر')
                     ->label('السعر')
                     ->formatStateUsing(fn ($state) => '<span class="font-semibold">'.number_format($state, 2).' LYD</span>')
@@ -493,6 +508,7 @@ class TransactionResource extends Resource
                     //
                 ]),
             ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('inspection'))
             ->defaultSort('created_at', 'desc');
     }
 

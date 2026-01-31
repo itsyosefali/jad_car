@@ -9,6 +9,12 @@ use Illuminate\Support\Carbon;
 
 class FinancialSummaryStats extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        // Only show when explicitly added to a page, not auto-discovered
+        return false;
+    }
+
     protected function getStats(): array
     {
         // Get date range from parent page properties

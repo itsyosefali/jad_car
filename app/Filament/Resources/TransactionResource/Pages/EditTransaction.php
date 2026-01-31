@@ -25,6 +25,11 @@ class EditTransaction extends EditRecord
             ];
         })->toArray();
 
+        // Load inspection رقم_الوثيقة if exists
+        if ($this->record->inspection) {
+            $data['inspection_رقم_الوثيقة'] = $this->record->inspection->رقم_الوثيقة;
+        }
+
         return $data;
     }
 
@@ -88,8 +93,14 @@ class EditTransaction extends EditRecord
             $data['السعر'] = $this->record->السعر;
         }
 
+        // Store inspection رقم_الوثيقة for afterSave
+        $this->inspection_رقم_الوثيقة = $data['inspection_رقم_الوثيقة'] ?? null;
+        unset($data['inspection_رقم_الوثيقة']); // Remove from data to prevent saving to transaction
+
         return $data;
     }
+
+    protected $inspection_رقم_الوثيقة = null;
 
     protected function afterSave(): void
     {
@@ -97,5 +108,26 @@ class EditTransaction extends EditRecord
         if (! $this->record->isCompleted()) {
             $this->record->recalculateTotal();
         }
+
+        // Handle inspection رقم_الوثيقة
+        $رقم_الوثيقة = $this->inspection_رقم_الوثيقة;
+        
+        if ($رقم_الوثيقة !== null) {
+            if ($this->record->inspection) {
+                // Update existing inspection
+                $this->record->inspection->update(['رقم_الوثيقة' => $رقم_الوثيقة]);
+            } elseif (!empty($رقم_الوثيقة)) {
+                // Create new inspection if رقم_الوثيقة is provided
+                // Only create if transaction type is فحص or تجديد
+                if (in_array($this->record->نوع_المعاملة, ['فحص', 'تجديد'])) {
+                    $this->record->inspection()->create([
+                        'رقم_الوثيقة' => $رقم_الوثيقة,
+                        'نوع_الإجراء' => $this->record->نوع_المعاملة === 'فحص' ? 'فحص' : 'تجديد',
+                        'النتيجة' => 'صالح', // Default value
+                    ]);
+                }
+            }
+        }
     }
+
 }

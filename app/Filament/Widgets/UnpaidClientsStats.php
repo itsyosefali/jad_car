@@ -9,6 +9,11 @@ use Illuminate\Support\Carbon;
 
 class UnpaidClientsStats extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        // Only show when explicitly added to a page, not auto-discovered
+        return false;
+    }
     protected static ?int $sort = 1;
 
     protected int | string | array $columnSpan = 'full';

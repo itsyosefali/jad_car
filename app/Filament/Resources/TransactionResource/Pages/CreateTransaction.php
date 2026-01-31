@@ -29,12 +29,33 @@ class CreateTransaction extends CreateRecord
             $data['السعر'] = $total;
         }
 
+        // Store inspection رقم_الوثيقة for afterCreate
+        $this->inspection_رقم_الوثيقة = $data['inspection_رقم_الوثيقة'] ?? null;
+        unset($data['inspection_رقم_الوثيقة']); // Remove from data to prevent saving to transaction
+
         return $data;
     }
+
+    protected $inspection_رقم_الوثيقة = null;
 
     protected function afterCreate(): void
     {
         // Recalculate total from items after creation
         $this->record->recalculateTotal();
+
+        // Handle inspection رقم_الوثيقة
+        $رقم_الوثيقة = $this->inspection_رقم_الوثيقة;
+        
+        if (!empty($رقم_الوثيقة)) {
+            // Create new inspection if رقم_الوثيقة is provided
+            // Only create if transaction type is فحص or تجديد
+            if (in_array($this->record->نوع_المعاملة, ['فحص', 'تجديد'])) {
+                $this->record->inspection()->create([
+                    'رقم_الوثيقة' => $رقم_الوثيقة,
+                    'نوع_الإجراء' => $this->record->نوع_المعاملة === 'فحص' ? 'فحص' : 'تجديد',
+                    'النتيجة' => 'صالح', // Default value
+                ]);
+            }
+        }
     }
 }

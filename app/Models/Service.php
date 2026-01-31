@@ -9,6 +9,7 @@ class Service extends Model
 {
     protected $fillable = [
         'اسم_الخدمة',
+        'المجموعة',
         'التكلفة',
         'سعر_البيع',
         'الوصف',

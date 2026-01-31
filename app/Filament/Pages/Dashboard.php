@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\DashboardStats;
 use App\Filament\Widgets\TransactionTypeChart;
+use App\Filament\Widgets\TreasuryBalanceWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
@@ -21,6 +22,7 @@ class Dashboard extends BaseDashboard
         return [
             DashboardStats::class,
             TransactionTypeChart::class,
+            TreasuryBalanceWidget::class,
         ];
     }
 

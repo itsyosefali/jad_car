@@ -22,7 +22,9 @@ class ServiceResource extends Resource
 
     protected static ?string $pluralModelLabel = 'الخدمات';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'المعاملات';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -35,6 +37,20 @@ class ServiceResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
+                        Forms\Components\Select::make('المجموعة')
+                            ->label('المجموعة')
+                            ->options([
+                                'تسجيل' => 'تسجيل',
+                                'تأمين' => 'تأمين',
+                                'تجديد' => 'تجديد',
+                                'فحص' => 'فحص',
+                                'استخراج رخصة' => 'استخراج رخصة',
+                                'أخرى' => 'أخرى',
+                            ])
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->placeholder('اختر المجموعة'),
                         Forms\Components\Textarea::make('الوصف')
                             ->label('الوصف')
                             ->columnSpanFull(),
@@ -81,6 +97,13 @@ class ServiceResource extends Resource
                     ->label('اسم الخدمة')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('المجموعة')
+                    ->label('المجموعة')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('info')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('التكلفة')
                     ->label('التكلفة')
                     ->formatStateUsing(fn ($state) => number_format($state, 2).' LYD')
@@ -107,6 +130,16 @@ class ServiceResource extends Resource
                     ->sortable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('المجموعة')
+                    ->label('المجموعة')
+                    ->options([
+                        'تسجيل' => 'تسجيل',
+                        'تأمين' => 'تأمين',
+                        'تجديد' => 'تجديد',
+                        'فحص' => 'فحص',
+                        'استخراج رخصة' => 'استخراج رخصة',
+                        'أخرى' => 'أخرى',
+                    ]),
                 Tables\Filters\TernaryFilter::make('نشط')
                     ->label('نشط')
                     ->placeholder('الكل')

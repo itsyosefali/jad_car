@@ -7,6 +7,12 @@ use Filament\Widgets\ChartWidget;
 
 class TransactionTypeChart extends ChartWidget
 {
+    public static function canView(): bool
+    {
+        // Only show when explicitly added to a page, not auto-discovered
+        return false;
+    }
+
     protected static ?string $heading = 'المعاملات حسب النوع';
 
     protected static ?int $sort = 2;

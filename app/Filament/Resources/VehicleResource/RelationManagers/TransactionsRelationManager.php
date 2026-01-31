@@ -37,6 +37,11 @@ class TransactionsRelationManager extends RelationManager
                         'ملغاة' => 'danger',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('inspection.رقم_الوثيقة')
+                    ->label('رقم الوثيقة')
+                    ->searchable()
+                    ->default('—')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('السعر')
                     ->label('السعر')
                     ->formatStateUsing(fn ($state) => number_format($state, 2).' LYD')
